@@ -1,0 +1,64 @@
+# Script that automates daily commits to Github Repo
+
+name: Daily Contribution
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine commit count
+        id: count
+        run: |
+          ROLL=$((RANDOM % 100))
+
+          if [ "$ROLL" -lt 20 ]; then
+            COUNT=$((RANDOM % 10 + 1))
+          elif [ "$ROLL" -lt 80 ]; then
+            COUNT=$((RANDOM % 20 + 11))
+          else
+            COUNT=$((RANDOM % 10 + 31))
+          fi
+
+          echo "Today's commit count: $COUNT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Generate commits
+        run: |
+          COUNT=${{ steps.count.outputs.count }}
+
+          for ((i=1; i<=COUNT; i++)); do
+            CURRENT=$(cat counter.txt)
+            NEXT=$((CURRENT + 1))
+
+            echo "$NEXT" > counter.txt
+
+            git add counter.txt
+            git commit -m "Update counter to $NEXT"
+
+            echo "Created commit $i/$COUNT"
+
+            sleep 1
+          done
+
+      - name: Push commits
+        run: |
+          git push
