@@ -22,8 +22,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "KyleGossage"
+          git config user.email "155496513+KGossage11@users.noreply.github.com"
 
       - name: Determine commit count
         id: count
